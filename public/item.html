@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Online Shop - Item Details</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header>
+      <h1>My Online Shop</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+    <main>
+      <section id="item-details">
+        <h2>Item Details</h2>
+        <div>
+          <h3 id="item-name"></h3>
+          <img id="item-image" src="" alt="Item image" style="display:none;">
+          <p><strong>Category:</strong> <span id="item-category"></span></p>
+          <p><strong>Seller:</strong> <span id="item-seller"></span></p>
+          <p><strong>Price:</strong> <span id="item-price">&nbsp;</span><span id="item-currency"></span></p>
+          <p><strong>Description:</strong> <span id="item-description"></span></p>
+          <!-- Clothing specific fields -->
+          <p id="clothing-size" style="display:none;"><strong>Size:</strong> <span id="item-size"></span></p>
+          <p id="clothing-colour" style="display:none;"><strong>Colour:</strong> <span id="item-colour"></span></p>
+          <!-- Computer components and monitors specific fields -->
+          <p id="computer-spec" style="display:none;"><strong>Spec:</strong> <span id="item-spec"></span></p>
+          <!-- Rating, reviews and add review fields -->
+          <p><strong>Rating:</strong> <span id="item-rating"></span></p>
+          <p><strong>Reviews:</strong> <span id="item-reviews"></span></p>
+        </div>
+        <form id="review-form">
+          <h3>Add a Review</h3>
+          <label for="reviewer-name">Name:</label>
+          <input type="text" id="reviewer-name" name="reviewer-name" required>
+          <br>
+          <label for="review-text">Review:</label>
+          <textarea id="review-text" name="review-text" required></textarea>
+          <br>
+          <label for="rating">Rating (1-5):</label>
+          <input type="number" id="rating" name="rating" min="1" max="5" required>
+          <br>
+          <button type="submit">Submit Review</button>
+        </form>
+      </section>
+    </main>
+    <footer>
+      <p>&copy; My Online Shop, 2023</p>
+    </footer>
+    <script>
+      const itemName = document.getElementById('item-name');
+      const itemCategory = document.getElementById('item-category');
+      const itemSeller = document.getElementById('item-seller');
+      const itemCurrency = document.getElementById('item-currency');
+      const itemPrice = document.getElementById('item-price');
+      const itemDescription = document.getElementById('item-description');
+      const itemImage = document.getElementById('item-image');
+      const clothingSize = document.getElementById('clothing-size');
+      const itemSize = document.getElementById('item-size');
+      const clothingColour = document.getElementById('clothing-colour');
+      const itemColour = document.getElementById('item-colour');
+      const computerSpec = document.getElementById('computer-spec');
+      const itemSpec = document.getElementById('item-spec');
+      const itemRating = document.getElementById('item-rating');
+      const itemReviews = document.getElementById('item-reviews');
+      const reviewForm = document.getElementById('review-form');
+        // Get item details from server
+  const itemId = new URLSearchParams(window.location.search).get('id');
+  fetch(`/items/${itemId}`)
+    .then((response) => response.json())
+    .then((item) => {
+      itemName.textContent = item.name;
+      itemCategory.textContent = item.category;
+      itemSeller.textContent = item.seller;
+      itemCurrency.textContent = item.currency;
+     itemPrice.textContent = `${item.price} `;
+      itemDescription.textContent = item.description;
+      itemImage.src = item.image;
+      itemImage.style.display = 'block';
+      itemRating.textContent = item.rating;
+      itemReviews.textContent = item.reviews;
+
+      // Show category-specific fields
+      if (item.category === 'Clothing') {
+        clothingSize.style.display = 'block';
+        itemSize.textContent = item.size;
+        clothingColour.style.display = 'block';
+        itemColour.textContent = item.colour;
+      } else if (item.category === 'Computer Components' || item.category ===  'Monitors') {
+        computerSpec.style.display = 'block';
+        itemSpec.textContent = item.spec;
+      }
+    })
+    .catch((error) => console.error(error));
+
+  // Handle form submission
+  reviewForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const reviewerName = document.getElementById('reviewer-name').value;
+    const reviewText = document.getElementById('review-text').value;
+    const rating = document.getElementById('rating').value;
+    const data = {
+      itemId: itemId,
+      reviewerName: reviewerName,
+      reviewText: reviewText,
+      rating: rating
+    };
+    fetch('/reviews', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((review) => {
+        console.log(review);
+        alert('Review submitted successfully!');
+        reviewForm.reset();
+      })
+      .catch((error) => console.error(error));
+  });
+</script>
+</body>
+</html>
