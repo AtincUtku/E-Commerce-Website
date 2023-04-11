@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/items.js');
+const { isLoggedIn, isAdmin } = require('../middlewares/authMiddleware.js');
 
 // GET all items 
 router.get('/', itemController.getItems);
@@ -11,13 +12,26 @@ router.get('/category/:category', itemController.getItemsByCategory);
 // GET item by id
 router.get('/:id', itemController.getItemById);
 
-// CREATE new item
-router.post('/', itemController.createItem);
+// CREATE new item (only admin)
+router.post('/', isLoggedIn, isAdmin, itemController.createItem);
 
 // UPDATE item
-router.put('/:id', itemController.updateItem);
+router.put('/:id', isLoggedIn, itemController.updateItem);
 
-// DELETE item
-router.delete('/:id', itemController.deleteItem);
+// DELETE item (only admin)
+router.delete('/:id', isLoggedIn, isAdmin, itemController.deleteItem);
+
+// Rate item (only logged-in users)
+router.post('/:id/rate', isLoggedIn, itemController.rateItem);
+
+// Add review to an item (only logged-in users)
+router.post('/:id/addReview', isLoggedIn, itemController.addReview);
+
+// Update review for an item (only logged-in users)
+router.put('/:id/updateReview', isLoggedIn, itemController.updateReview);
+
+// Delete review for an item (only logged-in users)
+router.delete('/:id/deleteReview', isLoggedIn, itemController.deleteReview);
+
 
 module.exports = router;

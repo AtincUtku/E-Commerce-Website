@@ -1,29 +1,19 @@
-class User {
-    constructor(username, email, reviews = []) {
-      this.username = username;
-      this.email = email;
-      this.reviews = reviews;
-    }
-  
-    addReview(itemId, rating, comment) {
-      const review = { itemId, rating, comment };
-      this.reviews.push(review);
-    }
-  
-    getReviewIndex(itemId) {
-      return this.reviews.findIndex((review) => review.itemId === itemId);
-    }
-  
-    updateReview(itemId, rating, comment) {
-      const reviewIndex = this.getReviewIndex(itemId);
-      if (reviewIndex === -1) {
-        return false;
-      }
-      this.reviews[reviewIndex].rating = rating;
-      this.reviews[reviewIndex].comment = comment;
-      return true;
-    }
-  }
-  
-  module.exports = User;
-  
+const mongoose = require('mongoose');
+
+const reviewSchema = new mongoose.Schema({
+  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+});
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  isAdmin: { type: Boolean, required: true, default: false },
+  loggedIn: { type: Boolean, required: true, default: false },
+  averageRating: { type: Number, default: 0 },
+  reviews: [reviewSchema],
+});
+
+const User = mongoose.model('User', userSchema, 'Users');
+
+module.exports = User;
