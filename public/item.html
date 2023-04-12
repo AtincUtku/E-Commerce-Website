@@ -8,6 +8,12 @@
   <body>
     <header>
       <h1>My Online Shop</h1>
+      <div id="user-info">
+        <span id="username" style="display: none;"></span>
+        <a id="user-page" class="nav-button" href="user.html" style="display: none;">My Account</a>
+        <button id="logout" style="display: none;">Logout</button>
+        <a id="sign-in" class="nav-button" href="signin.html">Sign In</a> / <a id="sign-up" class="nav-button" href="signup.html">Sign Up</a>
+      </div>
     </header>
     <nav>
       <ul>
@@ -34,6 +40,7 @@
           <!-- Rating, reviews and add review fields -->
           <p><strong>Rating:</strong> <span id="item-rating"></span></p>
           <p><strong>Reviews:</strong> <span id="item-reviews"></span></p>
+          <div id="review-list"></div>
         </div>
         <form id="review-form">
           <h3>Add a Review</h3>
@@ -70,6 +77,40 @@
       const itemRating = document.getElementById('item-rating');
       const itemReviews = document.getElementById('item-reviews');
       const reviewForm = document.getElementById('review-form');
+      const signIn = document.getElementById('sign-in');
+      const signUp = document.getElementById('sign-up');
+      const logout = document.getElementById('logout');
+      const username = document.getElementById('username');
+
+      function updateAuthUI() {
+        const token = localStorage.getItem('token');
+        const userPage = document.getElementById('user-page');
+        const reviewForm = document.getElementById('review-form');
+        if (token) {
+          signIn.style.display = 'none';
+          signUp.style.display = 'none';
+          logout.style.display = 'inline';
+          username.style.display = 'inline';
+          userPage.style.display = 'inline';
+          reviewForm.style.display = 'block';
+          username.textContent = localStorage.getItem('username');
+        } else {
+          signIn.style.display = 'inline';
+          signUp.style.display = 'inline';
+          logout.style.display = 'none';
+          username.style.display = 'none';
+          userPage.style.display = 'none';
+          reviewForm.style.display = 'none';
+        }
+      }
+
+      logout.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        updateAuthUI();
+      });
+      // Update UI on page load
+      updateAuthUI();
         // Get item details from server
   const itemId = new URLSearchParams(window.location.search).get('id');
   fetch(`/items/${itemId}`)
@@ -126,6 +167,25 @@
       })
       .catch((error) => console.error(error));
   });
+    // Add this code after fetching item details
+async function fetchItemReviews() {
+  const response = await fetch(`/items/${itemId}/reviews`);
+  const reviews = await response.json();
+  displayItemReviews(reviews);
+}
+
+function displayItemReviews(reviews) {
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  reviews.forEach((review) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${review.username}:</strong> ${review.review} (${review.rating}/5)`;
+    reviewList.appendChild(div);
+  });
+}
+
+fetchItemReviews();
+
 </script>
 </body>
 </html>

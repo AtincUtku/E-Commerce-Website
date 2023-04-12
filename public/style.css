@@ -118,3 +118,18 @@ form button:hover {
 .category:active {
   background-color: #555;
 }
+
+.nav-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color:  #333;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.nav-button:hover {
+  background-color: #444;
+  color: #fff;
+  text-decoration: none;
+}

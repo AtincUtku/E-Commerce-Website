@@ -10,8 +10,9 @@
       <h1>My Online Shop</h1>
       <div id="user-info">
         <span id="username" style="display: none;"></span>
+        <a id="user-page" class="nav-button" href="user.html" style="display: none;">My Account</a>
         <button id="logout" style="display: none;">Logout</button>
-        <a id="sign-in" href="signin.html">Sign In</a> / <a id="sign-up" href="signup.html">Sign Up</a>
+        <a id="sign-in" class="nav-button" href="signin.html">Sign In</a> / <a id="sign-up" class="nav-button" href="signup.html">Sign Up</a>
       </div>
     </header>
     <nav>
@@ -43,6 +44,38 @@
     <script>
       const itemList = document.getElementById('item-list');
       const categoryLinks = document.querySelectorAll('.category');
+      const signIn = document.getElementById('sign-in');
+      const signUp = document.getElementById('sign-up');
+      const logout = document.getElementById('logout');
+      const username = document.getElementById('username');
+      
+      
+      function updateAuthUI() {
+        const token = localStorage.getItem('token');
+        if (token) {
+          signIn.style.display = 'none';
+          signUp.style.display = 'none';
+          logout.style.display = 'inline';
+          username.style.display = 'inline';
+          userPage.style.display = 'inline';
+          username.textContent = localStorage.getItem('username');
+        } else {
+          signIn.style.display = 'inline';
+          signUp.style.display = 'inline';
+          logout.style.display = 'none';
+          username.style.display = 'none';
+          userPage.style.display = 'none';
+        }
+      }
+
+      logout.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        updateAuthUI();
+      });
+
+      // Update UI on page load
+      updateAuthUI();
 
       // Add click event listeners to category links
       categoryLinks.forEach((link) => {
@@ -61,6 +94,8 @@
           });
         });
       });
+
+      
     </script>
   </body>
 </html>

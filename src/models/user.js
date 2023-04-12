@@ -9,7 +9,6 @@ const reviewSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   isAdmin: { type: Boolean, required: true, default: false },
-  loggedIn: { type: Boolean, required: true, default: false },
   averageRating: { type: Number, default: 0 },
   reviews: [reviewSchema],
 });

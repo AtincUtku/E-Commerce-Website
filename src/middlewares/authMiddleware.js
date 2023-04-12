@@ -1,36 +1,23 @@
-const User = require('../models/user.js');
+const jwt = require('jsonwebtoken');
 
-const isLoggedIn = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ username: req.body.username });
-
-    if (user && user.loggedIn) {
-      req.user = user;
-      next();
-    } else {
-      res.status(401).json({ error: 'User not logged in' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+exports.isLoggedIn = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication failed. No token provided.' });
   }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Authentication failed. Invalid token.' });
+    }
+    req.user = decoded;
+    next();
+  });
 };
 
-const isAdmin = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ username: req.body.username });
-
-    if (user && user.isAdmin) {
-      req.user = user;
-      next();
-    } else {
-      res.status(403).json({ error: 'User is not an admin' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+exports.isAdmin = (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ message: 'Access denied. Insufficient privileges.' });
   }
-};
-
-module.exports = {
-  isLoggedIn,
-  isAdmin,
+  next();
 };

@@ -67,10 +67,12 @@ async function updateUser(req, res) {
     if (!user) {
       res.status(404).json({ error: 'User not found' });
     } else {
-      const { username, isAdmin, loggedIn } = req.body;
+      const { username, isAdmin, loggedIn, averageRating, reviews } = req.body;
       user.username = username;
       user.isAdmin = isAdmin;
       user.loggedIn = loggedIn;
+      user.averageRating = averageRating;
+      user.reviews = reviews;
       await client.db("ceng495_hw1").collection('Users').replaceOne({ _id: user._id }, user);
       res.status(200).json({ message: 'User updated', user });
     }
@@ -111,53 +113,50 @@ async function getUserReviews(req, res) {
   
 // LOGIN user
 async function loginUser(req, res) {
-    try {
-      const client = await connectDb();
-      const user = await client.db("ceng495_hw1").collection('Users').findOne({ username: req.body.username });
-      if (!user) {
-        res.status(404).json({ error: 'User not found' });
-      } else {
-        await client.db("ceng495_hw1").collection('Users').updateOne({ _id: user._id }, { $set: { loggedIn: true } });
-        res.status(200).json({ message: 'User logged in', user });
-      }
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+  try {
+    const client = await connectDb();
+    const user = await client.db("ceng495_hw1").collection('Users').findOne({ username: req.body.username });
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+    } else {
+      const token = jwt.sign({ userId: user._id, username: user.username, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
+        expiresIn: '1h',
+      });
+      res.status(200).json({ message: 'User logged in successfully.', token });
     }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
   
-  // LOGOUT user
-  async function logoutUser(req, res) {
-    try {
-      const client = await connectDb();
-      const user = await client.db("ceng495_hw1").collection('Users').findOne({ _id: new ObjectId(req.params.id) });
-      if (!user) {
-        res.status(404).json({ error: 'User not found' });
-      } else {
-        await client.db("ceng495_hw1").collection('Users').updateOne({ _id: user._id }, { $set: { loggedIn: false } });
-        res.status(200).json({ message: 'User logged out' });
-      }
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+// LOGOUT user
+async function logoutUser(req, res) {
+  try {
+    res.status(200).json({ message: 'User logged out' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
+}
+    
 
 // LOGIN admin
 async function loginAdmin(req, res) {
-    try {
-      const client = await connectDb();
-      const admin = await client.db("ceng495_hw1").collection('Users').findOne({ username: req.body.username });
-  
-      if (!admin || !admin.isAdmin) {
-        res.status(404).json({ error: 'Admin not found' });
-      } else {
-        await client.db("ceng495_hw1").collection('Users').updateOne({ _id: admin._id }, { $set: { loggedIn: true } });
-        res.status(200).json({ message: 'Admin logged in', admin });
-      }
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+  try {
+    const client = await connectDb();
+    const admin = await client.db("ceng495_hw1").collection('Users').findOne({ username: req.body.username });
+
+    if (!admin || !admin.isAdmin) {
+      res.status(404).json({ error: 'Admin not found' });
+    } else {
+      const token = jwt.sign({ userId: admin._id, username: admin.username, isAdmin: admin.isAdmin }, process.env.JWT_SECRET, {
+        expiresIn: '1h',
+      });
+      res.status(200).json({ message: 'Admin logged in successfully.', token });
     }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
-  
+}
 
   module.exports = {
     getUsers,
