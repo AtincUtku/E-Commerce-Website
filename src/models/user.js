@@ -1,18 +1,10 @@
-const mongoose = require('mongoose');
-
-const reviewSchema = new mongoose.Schema({
-  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
-  rating: { type: Number, required: true, min: 1, max: 5 },
-  comment: { type: String, required: true },
-});
-
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  isAdmin: { type: Boolean, required: true, default: false },
-  averageRating: { type: Number, default: 0 },
-  reviews: [reviewSchema],
-});
-
-const User = mongoose.model('User', userSchema, 'Users');
+class User {
+  constructor(username, isAdmin, average_rating, reviews) {
+    this.username = username;
+    this.isAdmin = isAdmin || false;
+    this.average_rating = average_rating || 0;
+    this.reviews = reviews || [];
+  }
+}
 
 module.exports = User;

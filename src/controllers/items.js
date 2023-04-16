@@ -2,6 +2,7 @@ const { connectDb } = require("../config/db.js");
 const Item = require('../models/item.js');
 const User = require('../models/user.js');
 const { ObjectId } = require('mongodb');
+const jwt  = require('jsonwebtoken');
 
 // GET all items 
 async function getItems(req, res) {
@@ -19,9 +20,7 @@ async function getItemsByCategory(req, res) {
   try {
     const client = await connectDb();
     const query = {category: req.params.category};
-    console.log(query);
     const collection = await client.db("ceng495_hw1").collection("Items");
-    console.log("after collection");
     const items = await collection.find(query).toArray();
     console.log(items);
     res.status(200).json(items);
@@ -34,17 +33,9 @@ async function getItemsByCategory(req, res) {
 async function getItemById(req, res) {
   try {
     const client = await connectDb();
-    console.log("connected to db");
-    console.log('req.params.id:', req.params.id);
     const query = { _id: new ObjectId(req.params.id) };
-    console.log("query:", query);
-    
     const collection = await client.db("ceng495_hw1").collection('Items');
-    console.log("collection:", collection);
-    
     const item = await collection.findOne(query);
-    
-    console.log(item);
     if (!item) {
         res.status(404).json({ error: 'Item not found' });
       } else {
@@ -106,30 +97,59 @@ async function deleteItem(req, res) {
   }
 }
 
+
 // Add review to an item
 async function addReview(req, res) {
   try {
+    console.log("Entered addReview");
+    console.log(req.body);
     const client = await connectDb();
-    const { itemId, rating, comment } = req.body;
-    const username = req.user.username;
-    const query = { _id: new ObjectId(itemId) };
+    console.log("Connected to db");
+    //const item_id = new ObjectId(req.params.id);
+    //const { itemid, username, rating, comment } = req.body;
+
+    const itemid = req.body.itemId;
+    const username = req.body.reviewerName;
+    const review_text = req.body.reviewText;
+    const rating = Number(req.body.rating);
+
+    console.log("itemid: " + itemid);
+    console.log("username: " + username);
+    const item_objectId = new ObjectId(itemid);
+    const query = { _id: new ObjectId(itemid) };
     const item = await client.db("ceng495_hw1").collection('Items').findOne(query);
-    const user = await client.db("ceng495_hw1").collection('Users').findOne({ username });
+    const user = await client.db("ceng495_hw1").collection('Users').findOne({username});
+    console.log("item found")
+    console.log(item)
+    console.log("user found")
+    console.log(user)
 
     if (!item || !user) {
       res.status(404).json({ error: 'Item or user not found' });
     } else {
+      const reviewId = new ObjectId();
       const review = {
+        _id: reviewId,
         username,
         rating,
-        comment,
+        review_text,
       };
 
-      item.reviews.push(review);
-      user.reviews.push({ item: itemId, ...review });
+      const user_previous_review_number = user.reviews.length;
+      const item_previous_review_number = item.reviews.length;
+      const user_previous_average_rating = user.average_rating || 0;
+      const item_previous_average_rating = item.rating || 0;
 
-      // Update user's average rating
-      user.averageRating = user.reviews.reduce((acc, r) => acc + r.rating, 0) / user.reviews.length;
+      item.reviews.push(review);
+      user.reviews.push({ itemId: item_objectId, ...review });
+
+
+      user.average_rating = (user_previous_average_rating * user_previous_review_number + rating) / (user_previous_review_number + 1);
+      console.log("user average rating: " + user.average_rating);
+      item.rating = (item_previous_average_rating * item_previous_review_number + rating) / (item_previous_review_number + 1);
+      console.log("item average rating: " + item.rating);
+
+      console.log("perfect so far...");
 
       await client.db("ceng495_hw1").collection('Items').replaceOne(query, item);
       await client.db("ceng495_hw1").collection('Users').replaceOne({ username }, user);

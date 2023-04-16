@@ -30,17 +30,32 @@ async function fetchUserReviews() {
   });
   
   const reviews = await response.json();
-  displayUserReviews(reviews);
+  const reviewsWithItemDetails = await Promise.all(reviews.map(async (review) => {
+    const itemResponse = await fetch(`/items/${review.itemId}`);
+    const itemDetails = await itemResponse.json();
+    return {
+      ...review,
+      itemName: itemDetails.name,
+      itemUrl: `/items/${itemDetails._id}`
+    };
+  }));
+  displayUserReviews(reviewsWithItemDetails);
 }
 
 function displayUserReviews(reviews) {
-    reviewList.innerHTML = '';
-    reviews.forEach((review) => {
-      const li = document.createElement('li');
-      li.textContent = `${review.itemName}: ${review.review} (${review.rating}/5)`;
-      reviewList.appendChild(li);
-    });
-  }
+  reviewList.innerHTML = '';
+  reviews.forEach((review) => {
+    const li = document.createElement('li');
+    const itemNameLink = document.createElement('a');
+    itemNameLink.href = `item.html?id=${review.itemId}`;
+    itemNameLink.textContent = review.itemName;
+    
+    // Append the anchor element and other review details to the list item
+    li.appendChild(itemNameLink);
+    li.innerHTML += `: ${review.review_text} (${review.rating}/5)`;
+    reviewList.appendChild(li);
+  });
+}
   
 
 fetchUserDetails();

@@ -5,12 +5,14 @@ exports.isLoggedIn = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'Authentication failed. No token provided.' });
   }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  const secret = "my_jwt_secret";
+  jwt.verify(token, secret, (err, decoded) => {
     if (err) {
+      console.log(err);
       return res.status(401).json({ message: 'Authentication failed. Invalid token.' });
     }
     req.user = decoded;
+    console.log('User: ', req.user);
     next();
   });
 };

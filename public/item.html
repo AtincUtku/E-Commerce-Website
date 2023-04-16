@@ -39,14 +39,11 @@
           <p id="computer-spec" style="display:none;"><strong>Spec:</strong> <span id="item-spec"></span></p>
           <!-- Rating, reviews and add review fields -->
           <p><strong>Rating:</strong> <span id="item-rating"></span></p>
-          <p><strong>Reviews:</strong> <span id="item-reviews"></span></p>
+          <h3><strong>Reviews:</strong></h3>
           <div id="review-list"></div>
         </div>
-        <form id="review-form">
+        <form id="review-form" style="display:none;">
           <h3>Add a Review</h3>
-          <label for="reviewer-name">Name:</label>
-          <input type="text" id="reviewer-name" name="reviewer-name" required>
-          <br>
           <label for="review-text">Review:</label>
           <textarea id="review-text" name="review-text" required></textarea>
           <br>
@@ -120,12 +117,11 @@
       itemCategory.textContent = item.category;
       itemSeller.textContent = item.seller;
       itemCurrency.textContent = item.currency;
-     itemPrice.textContent = `${item.price} `;
+      itemPrice.textContent = `${item.price} `;
       itemDescription.textContent = item.description;
       itemImage.src = item.image;
       itemImage.style.display = 'block';
       itemRating.textContent = item.rating;
-      itemReviews.textContent = item.reviews;
 
       // Show category-specific fields
       if (item.category === 'Clothing') {
@@ -137,54 +133,72 @@
         computerSpec.style.display = 'block';
         itemSpec.textContent = item.spec;
       }
+
+      displayItemReviews(item.reviews);
     })
     .catch((error) => console.error(error));
 
   // Handle form submission
   reviewForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const reviewerName = document.getElementById('reviewer-name').value;
-    const reviewText = document.getElementById('review-text').value;
-    const rating = document.getElementById('rating').value;
-    const data = {
-      itemId: itemId,
-      reviewerName: reviewerName,
-      reviewText: reviewText,
-      rating: rating
-    };
-    fetch('/reviews', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-      .then((response) => response.json())
-      .then((review) => {
-        console.log(review);
-        alert('Review submitted successfully!');
-        reviewForm.reset();
-      })
-      .catch((error) => console.error(error));
+  event.preventDefault();
+
+    if (!localStorage.getItem('token')) {
+    alert('Please log in to submit a review.');
+    return;
+  }
+
+  const reviewText = document.getElementById('review-text').value;
+  const rating = document.getElementById('rating').value;
+  const data = {
+    itemId: itemId,
+    reviewerName: username.textContent,
+    reviewText: reviewText,
+    rating: rating
+  };
+
+  // Include the Authorization header with the Bearer token
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
   });
-    // Add this code after fetching item details
-async function fetchItemReviews() {
-  const response = await fetch(`/items/${itemId}/reviews`);
-  const reviews = await response.json();
-  displayItemReviews(reviews);
-}
+  console.log(data);
+  fetch(`/items/${itemId}/addReview`, {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(data)
+  })
+    .then((response) => response.json())
+    .then((review) => {
+      console.log(review);
+      alert('Review submitted successfully!');
+      reviewForm.reset();
+    })
+    .catch((error) => console.error(error));
+});
+
+    
 
 function displayItemReviews(reviews) {
   const reviewList = document.getElementById('review-list');
   reviewList.innerHTML = '';
+
+  // Create an unordered list element
+  const ul = document.createElement('ul');
+
   reviews.forEach((review) => {
-    const div = document.createElement('div');
-    div.innerHTML = `<strong>${review.username}:</strong> ${review.review} (${review.rating}/5)`;
-    reviewList.appendChild(div);
+    // Create a list item for each review
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${review.username}:</strong> ${review.review_text} (${review.rating}/5)`;
+    
+    // Append the list item to the unordered list
+    ul.appendChild(li);
   });
+
+  // Append the unordered list to the reviewList div
+  reviewList.appendChild(ul);
 }
 
-fetchItemReviews();
+// fetchItemReviews();
 
 </script>
 </body>
