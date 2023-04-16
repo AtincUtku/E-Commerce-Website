@@ -48,6 +48,27 @@
       const signUp = document.getElementById('sign-up');
       const logout = document.getElementById('logout');
       const username = document.getElementById('username');
+      const userPage = document.getElementById('user-page');
+
+       // Add click event listeners to category links
+       categoryLinks.forEach((link) => {
+        link.addEventListener('click', async () => {
+          const category = link.dataset.category;
+          const response = await fetch(`/items/category/${category}`);
+          const items = await response.json();
+          itemList.innerHTML = '';
+          items.forEach((item) => {
+            const li = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = `item.html?id=${item._id}`;
+            link.textContent = `${item.name} - ${item.price}`;
+            li.appendChild(link);
+            itemList.appendChild(li);
+          });
+        });
+      });
+
+      
       
       
       function updateAuthUI() {
@@ -77,25 +98,7 @@
       // Update UI on page load
       updateAuthUI();
 
-      // Add click event listeners to category links
-      categoryLinks.forEach((link) => {
-        link.addEventListener('click', async () => {
-          const category = link.dataset.category;
-          const response = await fetch(`/items/category/${category}`);
-          const items = await response.json();
-          itemList.innerHTML = '';
-          items.forEach((item) => {
-            const li = document.createElement('li');
-            const link = document.createElement('a');
-            link.href = `item.html?id=${item._id}`;
-            link.textContent = `${item.name} - ${item.price}`;
-            li.appendChild(link);
-            itemList.appendChild(li);
-          });
-        });
-      });
-
-      
+     
     </script>
   </body>
 </html>

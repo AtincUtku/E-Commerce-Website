@@ -110,7 +110,8 @@ async function deleteItem(req, res) {
 async function addReview(req, res) {
   try {
     const client = await connectDb();
-    const { itemId, username, rating, comment } = req.body;
+    const { itemId, rating, comment } = req.body;
+    const username = req.user.username;
     const query = { _id: new ObjectId(itemId) };
     const item = await client.db("ceng495_hw1").collection('Items').findOne(query);
     const user = await client.db("ceng495_hw1").collection('Users').findOne({ username });

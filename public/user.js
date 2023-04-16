@@ -6,25 +6,29 @@ async function fetchUserDetails() {
   const userId = localStorage.getItem('userId');
   const response = await fetch(`/users/${userId}`, {
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   });
+  
   const userDetails = await response.json();
   displayUserDetails(userDetails);
 }
 
 function displayUserDetails(userDetails) {
+  console.log(userDetails.username);
+  console.log(userDetails.average_rating);
   userUsername.textContent = `Username: ${userDetails.username}`;
-  userAverageRating.textContent = `Average Rating: ${userDetails.averageRating.toFixed(2)}`;
+  userAverageRating.textContent = `Average Rating: ${userDetails.average_rating.toFixed(2)}`;
 }
 
 async function fetchUserReviews() {
   const userId = localStorage.getItem('userId');
   const response = await fetch(`/users/${userId}/reviews`, {
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   });
+  
   const reviews = await response.json();
   displayUserReviews(reviews);
 }

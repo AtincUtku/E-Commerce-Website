@@ -2,6 +2,7 @@ const { connectDb } = require("../config/db.js");
 const Item = require('../models/item.js');
 const User = require('../models/user.js');
 const { ObjectId } = require('mongodb');
+const  jwt  = require('jsonwebtoken');
 
 // GET all users
 async function getUsers(req, res) {
@@ -32,11 +33,14 @@ async function getUserByUsername(req, res) {
 // GET user by id
 async function getUserById(req, res) {
   try {
+    console.log("entered getUserById");
     const client = await connectDb();
     const user = await client.db("ceng495_hw1").collection('Users').findOne({ _id: new ObjectId(req.params.id) });
     if (!user) {
       res.status(404).json({ error: 'User not found' });
     } else {
+      console.log("user found");
+      console.log(user);
       res.status(200).json(user);
     }
   } catch (error) {
@@ -114,17 +118,29 @@ async function getUserReviews(req, res) {
 // LOGIN user
 async function loginUser(req, res) {
   try {
+    console.log(req.body);
+    console.log(req.body.username);
     const client = await connectDb();
-    const user = await client.db("ceng495_hw1").collection('Users').findOne({ username: req.body.username });
+    console.log("Client connected");
+    const user_name = req.body.username;
+    const user = await client.db("ceng495_hw1").collection('Users').findOne({ username: user_name});
     if (!user) {
+      console.log("User not found");
       res.status(404).json({ error: 'User not found' });
     } else {
-      const token = jwt.sign({ userId: user._id, username: user.username, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
-        expiresIn: '1h',
-      });
-      res.status(200).json({ message: 'User logged in successfully.', token });
+      console.log(user);
+      const payload = { userId: user._id, username: user.username, isAdmin: user.isAdmin };
+      const secret = 'my_jwt_secret';
+      const options = { expiresIn: 3600 };
+      
+      const token = jwt.sign(payload, secret, options);
+      console.log('Token:', token);
+      
+      console.log("token created");
+      res.status(200).json({ message: 'User logged in successfully.', token, userId: user._id, username: user.username }); // Include userId and username in the response
     }
   } catch (error) {
+    console.log("Error");
     res.status(500).json({ error: 'Internal server error' });
   }
 }
