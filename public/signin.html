@@ -26,6 +26,8 @@
       <form id="sign-in-form">
         <label for="username">Username:</label>
         <input type="text" id="username-input" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
         <span id="error-msg" style="display: none; color: red;"></span>
         <button type="submit">Sign In</button>
       </form>
@@ -37,12 +39,14 @@
       document.addEventListener('DOMContentLoaded', function() {
         const signInForm = document.getElementById('sign-in-form');
         const usernameInput = document.getElementById('username-input');
+        const passwordInput = document.getElementById('password');
         const errorMsg = document.getElementById('error-msg');
   
         signInForm.addEventListener('submit', async function(event) { // Add async here
           event.preventDefault();
   
           const username_name = usernameInput.value;
+          const password_input = passwordInput.value;
           console.log(username_name);
   
           try {
@@ -51,7 +55,7 @@
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ username: username_name })
+              body: JSON.stringify({ username: username_name, password: password_input })
             });
 
             
@@ -71,7 +75,7 @@
                 window.location.href = '/';
               }
             } else {
-              throw new Error('Invalid username');
+              throw new Error('Invalid username or password');
             }
           } catch (error) {
             errorMsg.textContent = error.message;

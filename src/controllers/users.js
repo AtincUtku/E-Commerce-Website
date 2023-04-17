@@ -3,6 +3,7 @@ const Item = require('../models/item.js');
 const User = require('../models/user.js');
 const { ObjectId } = require('mongodb');
 const  jwt  = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // GET all users
 async function getUsers(req, res) {
@@ -47,18 +48,26 @@ async function getUserById(req, res) {
 
 // CREATE new user
 async function createUser(req, res) {
-    try {
-      const { username, isAdmin } = req.body;
-      const loggedIn = false;
-      const user = { username, isAdmin, loggedIn, averageRating: 0, reviews: [] };
-      const client = await connectDb();
-      const result = await client.db("ceng495_hw1").collection('Users').insertOne(user);
-      res.status(201).json({ message: 'User created', user });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    const { username, password } = req.body;
+    const loggedIn = false;
+
+    const hashedPassword = await bcrypt.hash(password, 10); // 2. Hash the password
+
+    const user = {
+      username,
+      password: hashedPassword,
+      isAdmin,
+      average_rating: 0,
+      reviews: []
+    };
+    const client = await connectDb();
+    const result = await client.db("ceng495_hw1").collection('Users').insertOne(user);
+    res.status(201).json({ message: 'User created', user });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
-  
+}
 
 // UPDATE user
 async function updateUser(req, res) {
@@ -117,18 +126,25 @@ async function loginUser(req, res) {
   try {
     const client = await connectDb();
     const user_name = req.body.username;
+    const password = req.body.password;
     const user = await client.db("ceng495_hw1").collection('Users').findOne({ username: user_name});
     if (!user) {
       res.status(404).json({ error: 'User not found' });
     } else {
-      const payload = { userId: user._id, username: user.username, isAdmin: user.isAdmin };
-      const secret = 'my_jwt_secret';
-      const options = { expiresIn: 25200 };
+      const isPasswordValid = await bcrypt.compare(password, user.password); // 3. Verify the password
+
+      if (!isPasswordValid) {
+        res.status(401).json({ error: 'Invalid password' });
+        return;
+      } else {
+        const payload = { userId: user._id, username: user.username, isAdmin: user.isAdmin };
+        const secret = 'my_jwt_secret';
+        const options = { expiresIn: 25200 };
       
-      const token = jwt.sign(payload, secret, options);
+        const token = jwt.sign(payload, secret, options);
       
-      
-      res.status(200).json({ message: 'User logged in successfully.', token, userId: user._id, username: user.username }); // Include userId and username in the response
+        res.status(200).json({ message: 'User logged in successfully.', token, userId: user._id, username: user.username });
+      }
     }
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
