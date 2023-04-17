@@ -143,7 +143,7 @@ async function loginUser(req, res) {
       
         const token = jwt.sign(payload, secret, options);
       
-        res.status(200).json({ message: 'User logged in successfully.', token, userId: user._id, username: user.username });
+        res.status(200).json({ message: 'User logged in successfully.', token, userId: user._id, username: user.username, isAdmin: user.isAdmin });
       }
     }
   } catch (error) {

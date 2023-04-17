@@ -10,8 +10,8 @@
       <h1>My Online Shop</h1>
       <div id="user-info">
         <span id="username" style="display: none;"></span>
-        <a id="user-page" class="nav-button" href="user.html" style="display: none;">My Account</a>
-        <button id="logout" style="display: none;">Logout</button>
+        <a id="user-page" class="nav-button" href="#" style="display: none;">My Account</a>
+        <button id="logout" class="logout-button" style="display: none;">Logout</button>
         <a id="sign-in" class="nav-button" href="signin.html">Sign In</a> / <a id="sign-up" class="nav-button" href="signup.html">Sign Up</a>
       </div>
     </header>
@@ -84,10 +84,18 @@
         const userPage = document.getElementById('user-page');
         const reviewForm = document.getElementById('review-form');
         if (token) {
+          const isAdmin = localStorage.getItem('isAdmin') === 'true';
           signIn.style.display = 'none';
           signUp.style.display = 'none';
           logout.style.display = 'inline';
           username.style.display = 'inline';
+          if (isAdmin) {
+            userPage.textContent = 'Admin Dashboard';
+            userPage.href = 'admin.html';
+          } else {
+            userPage.textContent = 'My Account';
+            userPage.href = 'user.html';
+          }
           userPage.style.display = 'inline';
           reviewForm.style.display = 'block';
           username.textContent = localStorage.getItem('username');

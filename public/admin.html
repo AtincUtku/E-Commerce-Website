@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Admin Dashboard</h1>
+      <div id="user-info">
+        <span id="username" style="display: none;"></span>
+        <button id="logout" class="logout-button" style="display: none;">Logout</button>
+      </div>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+    <main>
+      <h2>Welcome, Admin!</h2>
+      <div id="admin-actions">
+        <h3>Manage Items</h3>
+        <form id="add-item-form">
+          <label for="item-name">Item Name:</label>
+          <input type="text" id="item-name" name="item-name" required />
+          <!-- Add any other necessary fields for an item -->
+          <button type="submit">Add Item</button>
+        </form>
+        <form id="remove-item-form">
+          <label for="item-id">Item ID:</label>
+          <input type="text" id="item-id" name="item-id" required />
+          <button type="submit">Remove Item</button>
+        </form>
+        <h3>Manage Users</h3>
+        <form id="add-user-form">
+          <label for="user-username">Username:</label>
+          <input type="text" id="user-username" name="user-username" required />
+          <label for="user-password">Password:</label>
+          <input type="password" id="user-password" name="user-password" required />
+          <!-- Add any other necessary fields for a user -->
+          <button type="submit">Add User</button>
+        </form>
+        <form id="remove-user-form">
+          <label for="user-id">User ID:</label>
+          <input type="text" id="user-id" name="user-id" required />
+          <button type="submit">Remove User</button>
+        </form>
+      </div>
+    </main>
+    <footer>
+      <p>&copy; My Online Shop, 2023</p>
+    </footer>
+    <script>
+      // Add necessary JavaScript code here
+        const signIn = document.getElementById('sign-in');
+        const signUp = document.getElementById('sign-up');
+        const logout = document.getElementById('logout');
+        const username = document.getElementById('username');
+
+        function updateAuthUI() {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const isAdmin = localStorage.getItem('isAdmin') === 'true';
+            if (isAdmin) {
+            logout.style.display = 'inline';
+            username.style.display = 'inline';
+            username.textContent = localStorage.getItem('username');
+            } else {
+            window.location.href = '/';
+            }
+        } else {
+            window.location.href = '/';
+        }
+        }
+
+        logout.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('isAdmin');
+        updateAuthUI();
+        });
+
+        // Update UI on page load
+        updateAuthUI();
+
+    </script>
+  </body>
+</html>

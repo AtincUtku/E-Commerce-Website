@@ -16,5 +16,5 @@ async function createHashedPassword(password) {
 // Every user has the same password for simplicity.
 const userPassword = 'user123';
 // Admin password is different from user password.
-const adminPassword = 'admin123';
-createHashedPassword(userPassword);
+const adminPassword = '123admin123';
+createHashedPassword(adminPassword);
