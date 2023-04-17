@@ -1,7 +1,7 @@
 const { connectDb } = require("../config/db.js");
 const Item = require('../models/item.js');
 const User = require('../models/user.js');
-const { ObjectId } = require('mongodb');
+const { ObjectId, Double } = require('mongodb');
 const jwt  = require('jsonwebtoken');
 
 // GET all items 
@@ -53,8 +53,8 @@ async function getItemById(req, res) {
 // CREATE new item
 async function createItem(req, res) {
   try {
-    const { name, description, price, currency, seller, image, size, colour, spec, rating, reviews, category } = req.body;
-    const item = new Item(name, description, price, currency, seller, image, size, colour, spec, rating, reviews, category);
+    const { name, description, price, currency, seller, image, size, colour, spec, category } = req.body;
+    const item = new Item(name, description, new Double(price), currency, seller, image, size, colour, spec, new Double(0.00), [], category);
     const client = await connectDb();
     const result = await client.db("ceng495_hw1").collection('Items').insertOne(item);
     res.status(201).json({ message: 'Item created', item });
@@ -111,7 +111,7 @@ async function addReview(req, res) {
     const itemid = req.body.itemId;
     const username = req.body.reviewerName;
     const review_text = req.body.reviewText;
-    const rating = Number(req.body.rating);
+    const rating = new Double(req.body.rating);
 
     console.log("itemid: " + itemid);
     console.log("username: " + username);

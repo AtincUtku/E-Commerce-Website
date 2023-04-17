@@ -22,7 +22,7 @@ router.get('/:id', itemController.getItemById);
 
 
 // CREATE new item (only admin)
-router.post('/', isLoggedIn, isAdmin, itemController.createItem);
+router.post('/', jsonParser, isLoggedIn, isAdmin, itemController.createItem);
 
 // UPDATE item
 router.put('/:id', isLoggedIn, itemController.updateItem);

@@ -125,11 +125,11 @@
       itemCategory.textContent = item.category;
       itemSeller.textContent = item.seller;
       itemCurrency.textContent = item.currency;
-      itemPrice.textContent = `${item.price} `;
+      itemPrice.textContent = `${item.price.toFixed(2)} `;
       itemDescription.textContent = item.description;
       itemImage.src = item.image;
       itemImage.style.display = 'block';
-      itemRating.textContent = item.rating;
+      itemRating.textContent = item.rating.toFixed(2);
 
       // Show category-specific fields
       if (item.category === 'Clothing') {

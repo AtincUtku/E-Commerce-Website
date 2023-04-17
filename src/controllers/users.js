@@ -1,7 +1,7 @@
 const { connectDb } = require("../config/db.js");
 const Item = require('../models/item.js');
 const User = require('../models/user.js');
-const { ObjectId } = require('mongodb');
+const { ObjectId, Double } = require('mongodb');
 const  jwt  = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -49,25 +49,35 @@ async function getUserById(req, res) {
 // CREATE new user
 async function createUser(req, res) {
   try {
-    const { username, password } = req.body;
-    const loggedIn = false;
+    const { username, password, isAdmin } = req.body;
+    const client = await connectDb();
 
-    const hashedPassword = await bcrypt.hash(password, 10); // 2. Hash the password
+    const is_user = await client.db("ceng495_hw1").collection('Users').findOne({ username: username });
+
+    if (is_user) {
+      console.log("Username already taken");
+      res.status(400).json({ error: 'Username already taken' });
+      return;
+    }
+      
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const rating = new Double(0); 
 
     const user = {
       username,
       password: hashedPassword,
-      isAdmin,
-      average_rating: 0,
-      reviews: []
+      isAdmin: isAdmin === 'true',
+      average_rating: rating,
+      reviews: [],
     };
-    const client = await connectDb();
+    
     const result = await client.db("ceng495_hw1").collection('Users').insertOne(user);
     res.status(201).json({ message: 'User created', user });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
 
 // UPDATE user
 async function updateUser(req, res) {
@@ -77,11 +87,10 @@ async function updateUser(req, res) {
     if (!user) {
       res.status(404).json({ error: 'User not found' });
     } else {
-      const { username, isAdmin, loggedIn, averageRating, reviews } = req.body;
+      const { username, isAdmin, average_rating, reviews } = req.body;
       user.username = username;
       user.isAdmin = isAdmin;
-      user.loggedIn = loggedIn;
-      user.averageRating = averageRating;
+      user.average_rating = average_rating;
       user.reviews = reviews;
       await client.db("ceng495_hw1").collection('Users').replaceOne({ _id: user._id }, user);
       res.status(200).json({ message: 'User updated', user });
