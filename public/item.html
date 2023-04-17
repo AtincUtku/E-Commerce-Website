@@ -172,6 +172,14 @@
       console.log(review);
       alert('Review submitted successfully!');
       reviewForm.reset();
+      fetch(`/items/${itemId}`)
+        .then((response) => response.json())
+        .then((item) => {
+          itemRating.textContent = item.rating;
+          displayItemReviews(item.reviews);
+        })
+        .catch((error) => console.error(error));
+      
     })
     .catch((error) => console.error(error));
 });

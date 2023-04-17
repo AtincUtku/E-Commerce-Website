@@ -127,29 +127,34 @@ async function addReview(req, res) {
     if (!item || !user) {
       res.status(404).json({ error: 'Item or user not found' });
     } else {
-      const reviewId = new ObjectId();
-      const review = {
-        _id: reviewId,
-        username,
-        rating,
-        review_text,
-      };
+      const existingItemReview = item.reviews.find(review => review.username === username);
+      const existingUserReview = user.reviews.find(review => review.itemId.toString() === itemid);
 
-      const user_previous_review_number = user.reviews.length;
-      const item_previous_review_number = item.reviews.length;
-      const user_previous_average_rating = user.average_rating || 0;
-      const item_previous_average_rating = item.rating || 0;
+      if (existingItemReview && existingUserReview) {
+        // Update the existing review
+        existingItemReview.rating = rating;
+        existingItemReview.review_text = review_text;
+        existingUserReview.rating = rating;
+        existingUserReview.review_text = review_text;
+      } else {
+        // Add a new review
+        const reviewId = new ObjectId();
+        const review = {
+          _id: reviewId,
+          username,
+          rating,
+          review_text,
+        };
 
-      item.reviews.push(review);
-      user.reviews.push({ itemId: item_objectId, ...review });
+        item.reviews.push(review);
+        user.reviews.push({ itemId: item_objectId, ...review });
+      }
 
+      // Update the item's average rating
+      item.rating = item.reviews.reduce((acc, r) => acc + r.rating, 0) / item.reviews.length;
 
-      user.average_rating = (user_previous_average_rating * user_previous_review_number + rating) / (user_previous_review_number + 1);
-      console.log("user average rating: " + user.average_rating);
-      item.rating = (item_previous_average_rating * item_previous_review_number + rating) / (item_previous_review_number + 1);
-      console.log("item average rating: " + item.rating);
-
-      console.log("perfect so far...");
+      // Update the user's average rating
+      user.average_rating = user.reviews.reduce((acc, r) => acc + r.rating, 0) / user.reviews.length;
 
       await client.db("ceng495_hw1").collection('Items').replaceOne(query, item);
       await client.db("ceng495_hw1").collection('Users').replaceOne({ username }, user);
