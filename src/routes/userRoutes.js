@@ -27,7 +27,7 @@ router.post('/', jsonParser, isLoggedIn, isAdmin, userController.createUser);
 router.put('/:id', isLoggedIn, userController.updateUser);
 
 // DELETE user
-router.delete('/:id', isLoggedIn, isAdmin, userController.deleteUser);
+router.delete('/', jsonParser, isLoggedIn, isAdmin, userController.deleteUserByName);
 
 // Login and Logout routes
 router.post('/login',jsonParser, userController.loginUser);

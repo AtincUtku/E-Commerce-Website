@@ -138,7 +138,7 @@ async function addReview(req, res) {
         existingUserReview.review_text = review_text;
       } else {
         // Add a new review
-        const reviewId = new ObjectId();
+        const reviewId = new ObjectId(); // Generate a new ObjectId for the review
         const review = {
           _id: reviewId,
           username,

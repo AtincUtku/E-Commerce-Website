@@ -10,6 +10,7 @@ async function getUsers(req, res) {
   try {
     const client = await connectDb();
     const users = await client.db("ceng495_hw1").collection('Users').find().toArray();
+    console.log(users);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
@@ -55,7 +56,6 @@ async function createUser(req, res) {
     const is_user = await client.db("ceng495_hw1").collection('Users').findOne({ username: username });
 
     if (is_user) {
-      console.log("Username already taken");
       res.status(400).json({ error: 'Username already taken' });
       return;
     }
@@ -101,19 +101,55 @@ async function updateUser(req, res) {
 }
 
 // DELETE user
-async function deleteUser(req, res) {
+async function deleteUserByName(req, res) {
   try {
     const client = await connectDb();
-    const result = await client.db("ceng495_hw1").collection('Users').deleteOne({ _id: new ObjectId(req.params.id) });
-    if (result.deletedCount === 0) {
+    const user_name = req.body.username;
+
+   
+
+    if (user_name == 'admin') {
+      res.status(400).json({ error: 'Cannot delete admin user' });
+      return;
+    }
+
+    const user = await client.db("ceng495_hw1").collection('Users').findOne({ username: user_name });
+    if (!user) {
       res.status(404).json({ error: 'User not found' });
     } else {
+
+      // Iterate through user's reviews
+      for (const review of user.reviews) {
+        const itemId = review.itemId;
+        const reviewId = review._id;
+        const item = await client.db("ceng495_hw1").collection('Items').findOne({ _id: itemId });
+
+        if (item) {
+          
+          // Remove user's review from the item's reviews
+          item.reviews = item.reviews.filter(r => !r._id.equals(reviewId));
+
+
+          // Update item's average rating
+          const totalRatings = item.reviews.reduce((sum, r) => sum + r.rating, 0);
+          const avg = item.reviews.length ? totalRatings / item.reviews.length : 0;
+          item.rating = new Double(avg);
+
+          // Update item in the database
+          await client.db("ceng495_hw1").collection('Items').replaceOne({ _id: item._id }, item);
+        }
+      }
+
+      // Delete user
+      const result = await client.db("ceng495_hw1").collection('Users').deleteOne({ username: user_name});
       res.status(200).json({ message: 'User deleted' });
     }
   } catch (error) {
+    console.error('Error in deleteUserByName:', error); // Log the error
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
 
 // GET user's reviews
 async function getUserReviews(req, res) {
@@ -195,7 +231,7 @@ async function loginAdmin(req, res) {
     getUserById,
     createUser,
     updateUser,
-    deleteUser,
+    deleteUserByName,
     getUserReviews,
     loginUser,
     logoutUser,

@@ -25,8 +25,11 @@ const signIn = document.getElementById('sign-in');
       logout.addEventListener('click', () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('isAdmin');
+        window.location.href = '/';
         updateAuthUI();
-        window.location.href = 'index.html';
+        
       });
 
       // Update UI on page load

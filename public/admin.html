@@ -16,14 +16,41 @@
     <nav>
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="#" id="show-add-user-form">Add User</a></li>
+        <li><a href="#" id="show-remove-user-form">Remove User</a></li>
+        <li><a href="#" id="show-add-item-form">Add Item</a></li>
+        <li><a href="#" id="show-remove-item-form">Remove Item</a></li>
       </ul>
     </nav>
     <main>
       <h2>Welcome, Admin!</h2>
-      <div id="admin-actions">
-        <h3>Manage Items</h3>
+      <section id="add-user-section" style="display:none;">
+        <h3>Add User</h3>
+        <form id="add-user-form">
+          <label for="user-username">Username:</label>
+          <input type="text" id="user-username" name="user-username" required />
+          <label for="user-password">Password:</label>
+          <input type="password" id="user-password" name="user-password" required />
+          <label for="user-isAdmin">Admin:</label>
+          <input type="checkbox" id="user-isAdmin" name="user-isAdmin" />
+          <!-- Add any other necessary fields for a user -->
+          <button type="submit" class="nav-button" >Add User</button>
+        </form>
+      </section>
+
+      <section id="remove-user-section" style="display:none;">
+        <h3>Remove User</h3>
+        <form id="remove-user-form">
+          <label for="user-username-remove">Username:</label>
+          <input type="text" id="user-username-remove" name="user-username-remove" required />
+          <button type="submit" class="nav-button" >Remove User</button>
+        </form>
+        <button id="get-users" class="logout-button" >Get Users</button>
+        <div id="user-list"></div>
+      </section>
+
+      <section id="add-item-section" style="display:none;">
+        <h3>Add Item</h3>
         <form id="add-item-form">
           <label for="item-name">Item Name:</label>
           <input type="text" id="item-name" name="item-name" required />
@@ -58,31 +85,18 @@
         
           
         
-          <button type="submit">Add Item</button>
+          <button type="submit" class="nav-button" >Add Item</button>
         </form>
-        
+      </section>
+
+      <section id="remove-item-section" style="display:none;">
+        <h3>Remove Item</h3>
         <form id="remove-item-form">
           <label for="item-id">Item ID:</label>
           <input type="text" id="item-id" name="item-id" required />
-          <button type="submit">Remove Item</button>
+          <button type="submit" class="nav-button" >Remove Item</button>
         </form>
-        <h3>Manage Users</h3>
-        <form id="add-user-form">
-          <label for="user-username">Username:</label>
-          <input type="text" id="user-username" name="user-username" required />
-          <label for="user-password">Password:</label>
-          <input type="password" id="user-password" name="user-password" required />
-          <label for="user-isAdmin">Admin:</label>
-          <input type="checkbox" id="user-isAdmin" name="user-isAdmin" />
-          <!-- Add any other necessary fields for a user -->
-          <button type="submit">Add User</button>
-        </form>
-        <form id="remove-user-form">
-          <label for="user-id">User ID:</label>
-          <input type="text" id="user-id" name="user-id" required />
-          <button type="submit">Remove User</button>
-        </form>
-      </div>
+      </section>
     </main>
     <footer>
       <p>&copy; My Online Shop, 2023</p>
@@ -93,6 +107,115 @@
         const signUp = document.getElementById('sign-up');
         const logout = document.getElementById('logout');
         const username = document.getElementById('username');
+
+        const addUserSection = document.getElementById('add-user-section');
+      const removeUserSection = document.getElementById('remove-user-section');
+      const addItemSection = document.getElementById('add-item-section');
+      const removeItemSection = document.getElementById('remove-item-section');
+
+      // Add this function to fetch and display the list of users
+// Modified function to fetch and display the list of users
+async function getUsers() {
+  try {
+    const response = await fetch('/users', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    if (response.ok) {
+      const users = await response.json();
+      const userList = document.getElementById('user-list');
+      userList.innerHTML = '';
+
+      const list = document.createElement('ul');
+
+      users.forEach(user => {
+        if (!user.isAdmin) {
+          const userElement = document.createElement('li');
+          userElement.textContent = user.username;
+          list.appendChild(userElement);
+        }
+      });
+
+      userList.appendChild(list);
+    } else {
+      const errorData = await response.json();
+      alert(`Error: ${errorData.error}`);
+    }
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  }
+}
+
+// Add an event listener to the "Get Users" button
+document.getElementById('get-users').addEventListener('click', getUsers);
+
+      
+
+
+      document.getElementById('remove-user-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById('user-username-remove').value; // Update the input field ID
+
+      try {
+        const response = await fetch('/users', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({ username }),
+        });
+
+        if (response.ok) {
+          alert('User removed successfully.');
+          document.getElementById('user-username-remove').value = ''; // Update the input field ID
+        } else {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.error}`);
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    });
+
+
+
+
+      function resetSections() {
+        addUserSection.style.display = 'none';
+        removeUserSection.style.display = 'none';
+        addItemSection.style.display = 'none';
+        removeItemSection.style.display = 'none';
+      }
+
+      document.getElementById('show-add-user-form').addEventListener('click', (event) => {
+        event.preventDefault();
+        resetSections();
+        addUserSection.style.display = 'block';
+      });
+
+      document.getElementById('show-remove-user-form').addEventListener('click', (event) => {
+        event.preventDefault();
+        resetSections();
+        removeUserSection.style.display = 'block';
+      });
+
+      document.getElementById('show-add-item-form').addEventListener('click', (event) => {
+        event.preventDefault();
+        resetSections();
+        addItemSection.style.display = 'block';
+      });
+
+      document.getElementById('show-remove-item-form').addEventListener('click', (event) => {
+        event.preventDefault();
+        resetSections();
+        removeItemSection.style.display = 'block';
+      });
 
         function updateRequiredFields() {
           const category = document.getElementById("item-category").value.toLowerCase();
