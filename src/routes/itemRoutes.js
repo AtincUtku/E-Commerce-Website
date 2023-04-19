@@ -28,9 +28,9 @@ router.post('/', jsonParser, isLoggedIn, isAdmin, itemController.createItem);
 router.put('/:id', isLoggedIn, itemController.updateItem);
 
 // DELETE item (only admin)
-router.delete('/:id', isLoggedIn, isAdmin, itemController.deleteItem);
+router.delete('/', jsonParser, isLoggedIn, isAdmin, itemController.deleteItemByName);
 
-// Rate item (only logged-in users)
+// Rate item (only logged-in users) 
 router.post('/:id/rate', isLoggedIn, itemController.rateItem);
 
 // Add review to an item (only logged-in users)

@@ -83,20 +83,46 @@ async function updateItem(req, res) {
 }
 
 // DELETE item
-async function deleteItem(req, res) {
+async function deleteItemByName(req, res) {
   try {
     const client = await connectDb();
-    const result = await client.db("ceng495_hw1").collection('Items').deleteOne({ _id: new ObjectId(req.params.id) });
-    if (result.deletedCount === 0) {
+    const item_name = req.body.name;
+    console.log(item_name);
+
+    const item = await client.db("ceng495_hw1").collection('Items').findOne({ name: item_name });
+
+    if (!item) {
       res.status(404).json({ error: 'Item not found' });
     } else {
+      // Iterate through item's reviews
+      for (const review of item.reviews) {
+        const username = review.username;
+        const reviewId = review._id;
+        const user = await client.db("ceng495_hw1").collection('Users').findOne({ username });
+
+        if (user) {
+          // Remove item's review from the user's reviews
+          user.reviews = user.reviews.filter(r => !r._id.equals(reviewId));
+
+          // Update user's average rating
+          const totalRatings = user.reviews.reduce((sum, r) => sum + r.rating, 0);
+          const avg = user.reviews.length ? totalRatings / user.reviews.length : 0;
+          user.average_rating = new Double(avg);
+
+          // Update user in the database
+          await client.db("ceng495_hw1").collection('Users').replaceOne({ username }, user);
+        }
+      }
+
+      // Delete item
+      const result = await client.db("ceng495_hw1").collection('Items').deleteOne({ name: item_name });
       res.status(200).json({ message: 'Item deleted' });
     }
   } catch (error) {
+    console.error('Error in deleteItemByName:', error); // Log the error
     res.status(500).json({ error: 'Internal server error' });
   }
 }
-
 
 // Add review to an item
 async function addReview(req, res) {
@@ -285,7 +311,7 @@ module.exports = {
   getItemById,
   createItem,
   updateItem,
-  deleteItem,
+  deleteItemByName,
   addReview,
   updateReview,
   deleteReview,

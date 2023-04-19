@@ -92,10 +92,12 @@
       <section id="remove-item-section" style="display:none;">
         <h3>Remove Item</h3>
         <form id="remove-item-form">
-          <label for="item-id">Item ID:</label>
-          <input type="text" id="item-id" name="item-id" required />
-          <button type="submit" class="nav-button" >Remove Item</button>
+          <label for="item-name-remove">Item Name:</label>
+          <input type="text" id="item-name-remove" name="item-name-remove" required />
+          <button type="submit" class="nav-button">Remove Item</button>
         </form>
+        <button id="get-items" class="logout-button">Get Items</button>
+        <div id="item-list"></div>
       </section>
     </main>
     <footer>
@@ -112,6 +114,71 @@
       const removeUserSection = document.getElementById('remove-user-section');
       const addItemSection = document.getElementById('add-item-section');
       const removeItemSection = document.getElementById('remove-item-section');
+
+      // Add this function to fetch and display the list of items
+      async function getItems() {
+        try {
+          const response = await fetch('/items', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+
+          if (response.ok) {
+            const items = await response.json();
+            const itemList = document.getElementById('item-list');
+            itemList.innerHTML = '';
+
+            const list = document.createElement('ul');
+
+            items.forEach(item => {
+              const itemElement = document.createElement('li');
+              itemElement.textContent = `${item.name} (Category: ${item.category})`;
+              list.appendChild(itemElement);
+            });
+
+            itemList.appendChild(list);
+          } else {
+            const errorData = await response.json();
+            alert(`Error: ${errorData.error}`);
+          }
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
+      }
+
+      // Add an event listener to the "Get Items" button
+      document.getElementById('get-items').addEventListener('click', getItems);
+
+      // Add event listener for the "Remove Item" form
+      document.getElementById('remove-item-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const itemName = document.getElementById('item-name-remove').value;
+
+        try {
+          const response = await fetch('/items', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({ name: itemName }),
+          });
+
+          if (response.ok) {
+            alert('Item removed successfully.');
+            document.getElementById('item-name-remove').value = '';
+          } else {
+            const errorData = await response.json();
+            alert(`Error: ${errorData.error}`);
+          }
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
+      });
 
       // Add this function to fetch and display the list of users
 // Modified function to fetch and display the list of users
