@@ -15,10 +15,10 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false })
 router.get('/', isLoggedIn, isAdmin, userController.getUsers);
 
 // GET user by ID
-router.get('/:id', userController.getUserById);
+router.get('/:id', isLoggedIn, userController.getUserById);
 
 // GET user by username
-router.get('/username/:username', userController.getUserByUsername);
+router.get('/username/:username', isLoggedIn, userController.getUserByUsername);
 
 // CREATE new user
 router.post('/', jsonParser, isLoggedIn, isAdmin, userController.createUser);

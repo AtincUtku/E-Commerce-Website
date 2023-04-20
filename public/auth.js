@@ -19,8 +19,11 @@ const signIn = document.getElementById('sign-in');
           logout.style.display = 'none';
           username.style.display = 'none';
           userPage.style.display = 'none';
+          window.location.href = '/';
         }
       }
+
+      
 
       logout.addEventListener('click', () => {
         localStorage.removeItem('token');
@@ -28,9 +31,17 @@ const signIn = document.getElementById('sign-in');
         localStorage.removeItem('userId');
         localStorage.removeItem('isAdmin');
         window.location.href = '/';
+        // Remove user and login pages from the history
+        const currentUrl = window.location.href;
+        history.replaceState(null, '', '/');
+        history.go(-1);
+        history.replaceState(null, '', currentUrl);
+        history.go(1);
         updateAuthUI();
         
       });
 
       // Update UI on page load
       updateAuthUI();
+
+      
