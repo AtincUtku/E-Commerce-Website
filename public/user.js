@@ -15,8 +15,6 @@ async function fetchUserDetails() {
 }
 
 function displayUserDetails(userDetails) {
-  console.log(userDetails.username);
-  console.log(userDetails.average_rating);
   userUsername.textContent = `Username: ${userDetails.username}`;
   userAverageRating.textContent = `Average Rating: ${userDetails.average_rating.toFixed(2)}`;
 }

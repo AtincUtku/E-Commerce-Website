@@ -127,7 +127,8 @@
       itemDescription.textContent = item.description;
       itemImage.src = item.image;
       itemImage.style.display = 'block';
-      itemRating.textContent = item.rating.toFixed(2);
+      itemRating.textContent = parseFloat(item.rating).toFixed(2);
+
 
       // Show category-specific fields
       if (item.category === 'Clothing') {

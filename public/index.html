@@ -60,7 +60,7 @@
           const li = document.createElement('li');
           const link = document.createElement('a');
           link.href = `item.html?id=${item._id}`;
-          link.textContent = `${item.name} - ${item.price}`;
+          link.textContent = `${item.name} - ${item.price} ${item.currency}`;
           li.appendChild(link);
           itemList.appendChild(li);
         });
