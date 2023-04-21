@@ -22,7 +22,6 @@ async function getItemsByCategory(req, res) {
     const query = {category: req.params.category};
     const collection = await client.db("ceng495_hw1").collection("Items");
     const items = await collection.find(query).toArray();
-    console.log(items);
     res.status(200).json(items);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
@@ -39,11 +38,9 @@ async function getItemById(req, res) {
     if (!item) {
         res.status(404).json({ error: 'Item not found' });
       } else {
-        console.log("item found");
         res.status(200).json(item);
       }
   } catch (error) {
-    console.error("Error:", error);
     res.status(500).json({ Error: error });
   }
 }
@@ -87,7 +84,6 @@ async function deleteItemByName(req, res) {
   try {
     const client = await connectDb();
     const item_name = req.body.name;
-    console.log(item_name);
 
     const item = await client.db("ceng495_hw1").collection('Items').findOne({ name: item_name });
 
@@ -119,7 +115,6 @@ async function deleteItemByName(req, res) {
       res.status(200).json({ message: 'Item deleted' });
     }
   } catch (error) {
-    console.error('Error in deleteItemByName:', error); // Log the error
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -127,10 +122,7 @@ async function deleteItemByName(req, res) {
 // Add review to an item
 async function addReview(req, res) {
   try {
-    console.log("Entered addReview");
-    console.log(req.body);
     const client = await connectDb();
-    console.log("Connected to db");
     //const item_id = new ObjectId(req.params.id);
     //const { itemid, username, rating, comment } = req.body;
 
@@ -139,16 +131,12 @@ async function addReview(req, res) {
     const review_text = req.body.reviewText;
     const rating = new Double(req.body.rating);
 
-    console.log("itemid: " + itemid);
-    console.log("username: " + username);
+    
     const item_objectId = new ObjectId(itemid);
     const query = { _id: new ObjectId(itemid) };
     const item = await client.db("ceng495_hw1").collection('Items').findOne(query);
     const user = await client.db("ceng495_hw1").collection('Users').findOne({username});
-    console.log("item found")
-    console.log(item)
-    console.log("user found")
-    console.log(user)
+    
 
     if (!item || !user) {
       res.status(404).json({ error: 'Item or user not found' });

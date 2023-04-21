@@ -10,7 +10,6 @@ async function getUsers(req, res) {
   try {
     const client = await connectDb();
     const users = await client.db("ceng495_hw1").collection('Users').find().toArray();
-    console.log(users);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
@@ -145,7 +144,6 @@ async function deleteUserByName(req, res) {
       res.status(200).json({ message: 'User deleted' });
     }
   } catch (error) {
-    console.error('Error in deleteUserByName:', error); // Log the error
     res.status(500).json({ error: 'Internal server error' });
   }
 }

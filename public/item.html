@@ -168,7 +168,6 @@
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${localStorage.getItem('token')}`
   });
-  console.log(data);
   fetch(`/items/${itemId}/addReview`, {
     method: 'POST',
     headers: headers,
@@ -176,7 +175,6 @@
   })
     .then((response) => response.json())
     .then((review) => {
-      console.log(review);
       alert('Review submitted successfully!');
       reviewForm.reset();
       fetch(`/items/${itemId}`)

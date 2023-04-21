@@ -33,8 +33,7 @@ router.delete('/', jsonParser, isLoggedIn, isAdmin, userController.deleteUserByN
 router.post('/login',jsonParser, userController.loginUser);
 router.post('/logout', isLoggedIn, userController.logoutUser);
 
-// Login as admin
-//router.post('/loginAdmin', userController.loginAdmin);
+
 
 router.get('/:id/reviews',isLoggedIn, userController.getUserReviews);
 

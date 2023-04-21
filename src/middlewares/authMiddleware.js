@@ -8,11 +8,9 @@ exports.isLoggedIn = (req, res, next) => {
   const secret = "my_jwt_secret";
   jwt.verify(token, secret, (err, decoded) => {
     if (err) {
-      console.log(err);
       return res.status(401).json({ message: 'Authentication failed. Invalid token.' });
     }
     req.user = decoded;
-    console.log('User: ', req.user);
     next();
   });
 };
