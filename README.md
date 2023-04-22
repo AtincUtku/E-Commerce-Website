@@ -1,7 +1,7 @@
 # README
 
 This is my wep app for Ceng495 hw1. Initial repository was forked from [Hello world](https://expressjs.com/en/starter/hello-world.html) example on [Render](https://render.com). 
-The app in this repo is deployed at https://ceng495-hw1-shopping.onrender.com.
+The app in this repo is deployed at https://ceng495-hw1-shopping.onrender.com
 
 ## Deployment
 
@@ -101,4 +101,6 @@ Admins can log out by clicking the "Logout" button.
 
 ## Conclusion
 
-In summary, this is my application for Ceng495 Homework 1, implemented using the Node.js framework Express and deployed on Render. MongoDB Atlas was used as the database. 
+In summary, this is my application for Ceng495 Homework 1, implemented using the Node.js framework Express and deployed on Render. MongoDB Atlas was used as the database. The app is deployed at https://ceng495-hw1-shopping.onrender.com
+
+Atınç Utku Alparslan
