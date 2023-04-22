@@ -23,11 +23,9 @@ Currently there are 3 regular users:
 Username  |  Password
 ----------|-----------
 user1     |  1  
-----------|-----------
 user2     |  1
-----------|-----------
 user3     |  1
-----------|-----------
+
 
 I've set the passwords to "1" for simplicity. The admin can add more users and set their passwords.
 
@@ -38,7 +36,7 @@ After signing in, regular users should see "My Account" instead of "Sign In" and
 Username  |  Password
 ----------|--------------
 admin     |  123admin123  
-----------|--------------
+
 
 When the admin signs in, they should see "Admin Dashboard" instead of "Sign In" and "Logout" instead of "Sign Up". After clicking "Admin Dashboard," the admin can access features like "Add User," "Remove User," "Add Item," and "Remove Item." I also added "Get Users" and "Get Items" in the "Remove User" and "Remove Item" fields, respectively, for increased usability.
 
