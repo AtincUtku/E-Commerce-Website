@@ -1,6 +1,6 @@
 # README
 
-This is my wep app for Ceng495 hw1. Initial repository was forked from [Hello world](https://expressjs.com/en/starter/hello-world.html) example on [Render](https://render.com). 
+This is my web application for first homework of Ceng495 Cloud Computing Course. Initial repository was forked from [Hello world](https://expressjs.com/en/starter/hello-world.html) example on [Render](https://render.com). 
 The app in this repo is deployed at https://ceng495-hw1-shopping.onrender.com
 
 ## Deployment
